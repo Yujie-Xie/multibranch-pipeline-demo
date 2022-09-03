@@ -12,6 +12,10 @@ pipeline {
     stages {
         
         stage('Cleanup Workspace') {
+            when {
+                not { changeRequest() }
+                changeset "newrules/**"
+            }
             steps {
                 cleanWs()
                 sh """
