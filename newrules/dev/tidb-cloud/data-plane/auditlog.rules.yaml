@@ -2,7 +2,7 @@ groups:
 - name: tidb-auditlog
   rules: #tttttttttt
   - alert: AuditlogDiskLowSpace
-    # We will delete the oldest log file directly if < 0.2
+    # We will delete the oldest log file directly if < 0.2 testttttttt
     expr: auditlog_storage_size_available_bytes / auditlog_storage_size_capacity_bytes < 0.5
     for: 5m
     labels:
