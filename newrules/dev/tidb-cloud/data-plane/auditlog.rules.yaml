@@ -1,0 +1,30 @@
+groups:
+- name: tidb-auditlog
+  rules:
+  - alert: AuditlogDiskLowSpace
+    # We will delete the oldest log file directly if < 0.2
+    expr: auditlog_storage_size_available_bytes / auditlog_storage_size_capacity_bytes < 0.5
+    for: 5m
+    labels:
+      tier: dedicated
+      severity: emergency
+      expr: auditlog_storage_size_available_bytes / auditlog_storage_size_capacity_bytes < 0.5
+      component: tidb-auditlog
+    annotations:
+      description: 'cluster: {{ $labels.cluster_id }}, instance: {{ $labels.instance }}, values:{{ $value }}'
+      value: '{{ $value }}'
+      summary: auditlog disk space low available size
+  - alert: AuditlogFailtoPush
+    # If fail to push and user should be blame(like revoke permission by mistake) we can try notify user,
+    # other case we should fix it ourself.
+    expr: increase(auditlog_push_file_duration_seconds_count{result="fail"}[10m])  > 0
+    for: 5m
+    labels:
+      tier: dedicated
+      severity: warning
+      expr:  increase(auditlog_push_file_duration_seconds_count{result="fail"}[10m])  > 0
+      component: tidb-auditlog
+    annotations:
+      description: 'cluster: {{ $labels.cluster_id }}, instance: {{ $labels.instance }}, values:{{ $value }}'
+      value: '{{ $value }}'
+      summary: fail to push log to storage
